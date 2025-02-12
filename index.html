@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sp - Airline Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body { font-family: 'Poppins', sans-serif; }
+        .flight-card:hover { transform: translateY(-5px); }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-sky-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">AirFlow</h1>
+            <div class="space-x-4">
+                <button id="loginBtn" class="px-4 py-2 rounded-lg bg-white text-sky-600 hover:bg-sky-100">Login</button>
+                <button id="registerBtn" class="px-4 py-2 rounded-lg border border-white hover:bg-sky-700">Register</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4">
+        <!-- Search Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-2xl font-semibold mb-4">Search Flights</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium mb-2">From</label>
+                    <input type="text" id="from" class="w-full p-2 border rounded-lg" placeholder="Departure City">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">To</label>
+                    <input type="text" id="to" class="w-full p-2 border rounded-lg" placeholder="Arrival City">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Date</label>
+                    <input type="date" id="date" class="w-full p-2 border rounded-lg">
+                </div>
+            </div>
+            <button onclick="searchFlights()" class="mt-4 bg-sky-600 text-white px-6 py-2 rounded-lg hover:bg-sky-700">Search</button>
+        </div>
+
+        <!-- Flight List -->
+        <div id="flightList" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Flights will be dynamically added here -->
+        </div>
+
+        <!-- Booking Modal -->
+        <div id="bookingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white rounded-lg p-6 w-full max-w-md">
+                <h3 class="text-xl font-semibold mb-4">Book Flight</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Passenger Name</label>
+                        <input type="text" id="passengerName" class="w-full p-2 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Email</label>
+                        <input type="email" id="passengerEmail" class="w-full p-2 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium mb-2">Phone</label>
+                        <input type="tel" id="passengerPhone" class="w-full p-2 border rounded-lg">
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end space-x-4">
+                    <button onclick="closeBookingModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-100">Cancel</button>
+                    <button onclick="confirmBooking()" class="px-4 py-2 bg-sky-600 text-white rounded-lg hover:bg-sky-700">Confirm Booking</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Sample flight data
+        const flights = [
+            { id: 1, from: 'New York', to: 'London', date: '2024-01-15', price: 599, airline: 'SkyWings' },
+            { id: 2, from: 'Paris', to: 'Tokyo', from: 'mumbai'to 'pune' date:'2025-02-11' date: '2024-0
+            1-15', price: 899, airline: 'AirGlobal' },
+            { id: 3, from: 'Dubai', to: 'Singapore', date: '2024-01-15', price: 449, airline: 'EastJet' }
+        ];
+
+        let selectedFlightId = null;
+
+        function searchFlights() {
+            const fromCity = document.getElementById('from').value.toLowerCase();
+            const toCity = document.getElementById('to').value.toLowerCase();
+            const date = document.getElementById('date').value;
+
+            const filteredFlights = flights.filter(flight => 
+                (!fromCity || flight.from.toLowerCase().includes(fromCity)) &&
+                (!toCity || flight.to.toLowerCase().includes(toCity)) &&
+                (!date || flight.date === date)
+            );
+
+            displayFlights(filteredFlights);
+        }
+
+        function displayFlights(flightList) {
+            const container = document.getElementById('flightList');
+            container.innerHTML = '';
+
+            flightList.forEach(flight => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-6 rounded-lg shadow-md flight-card transition-transform duration-300';
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-semibold">${flight.airline}</h3>
+                            <p class="text-gray-600">Flight #${flight.id}</p>
+                        </div>
+                        <p class="text-2xl font-bold text-sky-600">$${flight.price}</p>
+                    </div>
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500">From</p>
+                            <p class="font-medium">${flight.from}</p>
+                        </div>
+                        <i class="bi bi-airplane text-sky-600"></i>
+                        <div>
+                            <p class="text-sm text-gray-500">To</p>
+                            <p class="font-medium">${flight.to}</p>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <p class="text-sm text-gray-600">${flight.date}</p>
+                        <button onclick="openBookingModal(${flight.id})" class="bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700">
+                            Book Now
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openBookingModal(flightId) {
+            selectedFlightId = flightId;
+            document.getElementById('bookingModal').classList.remove('hidden');
+        }
+
+        function closeBookingModal() {
+            document.getElementById('bookingModal').classList.add('hidden');
+            selectedFlightId = null;
+        }
+
+        function confirmBooking() {
+            const name = document.getElementById('passengerName').value;
+            const email = document.getElementById('passengerEmail').value;
+            const phone = document.getElementById('passengerPhone').value;
+
+            if (!name || !email || !phone) {
+                alert('Please fill in all fields');
+                return;
+            }
+
+            // Here you would typically send this data to a backend server
+            alert(`Booking confirmed!\nFlight #${selectedFlightId}\nPassenger: ${name}`);
+            closeBookingModal();
+        }
+
+        // Initial display of all flights
+        displayFlights(flights);
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
